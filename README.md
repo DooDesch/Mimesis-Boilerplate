@@ -130,20 +130,20 @@ git push origin main
    
    **Required Secrets:**
    - `WORKSPACE_TOKEN`: SSH private key or Personal Access Token with access to your private Workspace repository
-     - For SSH key: Generate with `ssh-keygen -t ed25519 -C "github-actions" -f workspace_deploy_key`
-     - Add the public key as a Deploy Key in your Workspace repository
-     - Use the private key content as the secret value
-     - Or use a Personal Access Token (PAT) with `repo` scope
+      - For SSH key: Generate with `ssh-keygen -t ed25519 -C "github-actions" -f workspace_deploy_key`
+      - Add the public key as a Deploy Key in your Workspace repository
+      - Use the private key content as the secret value
+      - Or use a Personal Access Token (PAT) with `repo` scope
    
    **Thunderstore Upload (Optional):**
    If you want to automatically upload releases to Thunderstore:
-  - `THUNDERSTORE_TOKEN`: Your Thunderstore API token
-    - Get it from the Thunderstore team **Service Accounts** page:
-      1. Go to https://thunderstore.io/settings/teams/
-      2. Select the team you publish under (create one if needed)
-      3. Open **Service Accounts** → **Add service account**
-      4. Name it, click **Create**, and copy the token that starts with `tss_` (you only see it once)
-    - The [upload-thunderstore-package wiki](https://github.com/GreenTF/upload-thunderstore-package/wiki) has the full illustrated guide if you need more detail
+   - `THUNDERSTORE_TOKEN`: Your Thunderstore API token
+      - Get it from the Thunderstore team **Service Accounts** page:
+         1. Go to https://thunderstore.io/settings/teams/
+         2. Select the team you publish under (create one if needed)
+         3. Open **Service Accounts** → **Add service account**
+         4. Name it, click **Create**, and copy the token that starts with `tss_` (you only see it once)
+      - The [upload-thunderstore-package wiki](https://github.com/GreenTF/upload-thunderstore-package/wiki) has the full illustrated guide if you need more detail
    
    **Note:** The Thunderstore package details (namespace, community, repo, etc.) are configured in the workflow file (`.github/workflows/build-and-release.yml`). Update them to match your Thunderstore package:
    - Edit the `thunderstore` job in the workflow file
