@@ -79,6 +79,12 @@ if [ -f "Config/${OLD_NAME}Preferences.cs" ]; then
   mv "Config/${OLD_NAME}Preferences.cs" "Config/${MOD_NAME}Preferences.cs"
 fi
 
+echo "Removing existing Git repository metadata (.git)..."
+if [ -d ".git" ]; then
+  rm -rf ".git"
+  echo "  - Removed original .git directory to avoid pushing to the boilerplate repo."
+fi
+
 echo
 echo "Done!"
 echo "Next steps:"
