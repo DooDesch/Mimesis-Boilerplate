@@ -102,22 +102,27 @@ git push origin main
    cd YourModName
    ```
 
-2. **Rename Everything:**
-   - Rename the folder from `Boilerplate` to your mod name
-   - Search and replace `Boilerplate` with `YourModName` in all files:
-     - `Boilerplate.csproj` → `YourModName.csproj`
-     - Namespaces in `.cs` files
-     - Class names
-     - Assembly names
+2. **Run the setup script:**
+   ```bash
+   ./setup_mod.sh
+   ```
+   - Enter your desired **mod name** (PascalCase, no spaces)
+   - The script will:
+     - Rename the project file to `YourModName.csproj`
+     - Replace all occurrences of `Boilerplate` with `YourModName`
+     - Rename the config file to `Config/YourModNamePreferences.cs`
 
-3. **Update Project Paths:**
+3. **Optionally rename the folder:**
+   - You can now rename the folder itself from `Boilerplate` to your mod name if you want it to match.
+
+4. **Update Project Paths:**
    Edit `YourModName.csproj` and update these paths to match your setup:
    ```xml
    <ModsDirectory>C:\Path\To\MIMESIS\Mods</ModsDirectory>
    <GameExePath>C:\Path\To\MIMESIS\MIMESIS.exe</GameExePath>
    ```
 
-4. **Configure Workspace Access:**
+5. **Configure Workspace Access:**
    The project file references the Workspace repository. Make sure the path is correct:
    ```xml
    <WorkspaceLibPath>$(MSBuildThisFileDirectory)../Workspace/lib</WorkspaceLibPath>
@@ -125,7 +130,7 @@ git push origin main
    
    If your Workspace is in a different location, adjust the path accordingly.
 
-5. **Set Up GitHub Actions (Optional):**
+6. **Set Up GitHub Actions (Optional):**
    If you want to use GitHub Actions for automated builds and releases:
    
    **Required Secrets:**
