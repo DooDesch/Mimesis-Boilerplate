@@ -1,375 +1,72 @@
-# Mimesis Boilerplate Mod
+# MIMESIS - Boilerplate
 
-This is a boilerplate template for creating new MelonLoader mods for Mimesis.
+> A starter template for MelonLoader mods for MIMESIS. Clone it, run the rename script, and you have a ready-to-build mod skeleton that already matches the project conventions.
 
-**Quick Start:** Clone this repository, rename everything to your mod name, set up a private Workspace repository with game DLLs, and start coding!
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Game](https://img.shields.io/badge/game-MIMESIS-purple)
+![MelonLoader](https://img.shields.io/badge/MelonLoader-0.7.3%2B-green)
+![Status](https://img.shields.io/badge/status-template-lightgrey)
 
----
+This is a developer template, not a player-facing feature mod. Installing it does nothing in game - it just logs that it initialized. Use it as the starting point for a new Mimesis mod.
 
-## Table of Contents
+## Features
 
-- [Prerequisites](#prerequisites)
-- [Workspace Repository Setup](#workspace-repository-setup)
-- [Setting Up Your Mod](#setting-up-your-mod)
-- [Using MimicAPI](#using-mimicapi)
-- [Project Structure](#project-structure)
-- [Development](#development)
-- [Build & Deploy](#build--deploy)
-- [Troubleshooting](#troubleshooting)
-- [License](#license)
+- **Minimal MelonMod entry point** (`Core.cs`): on `OnInitializeMelon` it initializes preferences, calls `HarmonyInstance.PatchAll()`, and logs `Boilerplate initialized. Enabled={value}`. No game behavior is patched.
+- **MelonPreferences config scaffold** (`Config/BoilerplatePreferences.cs`): an idempotent `Initialize()` plus a typed `CreateEntry<T>` helper that demonstrates the standard preferences pattern.
+- **Harmony patch stub** (`Patches/ExamplePatch.cs`): a fully commented-out example of the `[HarmonyPatch(typeof(Class), "Method")]` + Prefix/Postfix pattern. It is not compiled (its `<Compile Include>` line is commented out in the `.csproj`).
+- **One-command setup script** (`setup_mod.sh`, POSIX sh): prompts for a PascalCase mod name, renames the `.csproj`, replaces every `Boilerplate` occurrence across `.cs`/`.csproj`/`.md`/`.json`/`.yml`/`.gitignore`, renames the preferences file, and deletes `.git` so you do not push back to the template.
+- **GitHub Actions release workflow** (`.github/workflows/build-and-release.yml`): on a `v*` tag it checks out a private Workspace repo, verifies the tag matches the csproj `<Version>`, builds Release, publishes a GitHub Release with the DLL, and uploads the package to Thunderstore.
+- **PostBuild auto-copy**: the built DLL is copied to the configured `ModsDirectory`; commented-out helpers exist for copying `MimicAPI.dll` and auto-launching the game after a build.
+- **Optional MimicAPI integration pre-wired but disabled**: a commented `MelonOptionalDependencies("MimicAPI")` in `Core.cs` and a commented `ProjectReference` (`Private=false`) plus `MimicAPIPath` in the `.csproj`. Uncomment to enable.
 
----
+## Requirements
 
-## Prerequisites
+| Component | Version |
+|---|---|
+| MIMESIS | 0.3.0 (current Steam build) |
+| MelonLoader | 0.7.3+ |
+| .NET SDK | for building (target framework `netstandard2.1`) |
+| Workspace/lib | game DLLs (`lib/game`) + `MelonLoader.dll` / `0Harmony.dll` (`lib/melonloader`) |
 
-### Software Requirements
+> The published `thunderstore/manifest.json` still declares `LavaGang-MelonLoader-0.7.1`. The supported runtime target is MelonLoader 0.7.3+.
 
-| Component | Version / Link |
-|-----------|----------------|
-| **Mimesis** | [Latest Steam build](https://store.steampowered.com/app/2827200/MIMESIS/) |
-| **.NET SDK** | [6.0+](https://dotnet.microsoft.com/download) (for building) |
-| **IDE** | [Visual Studio 2022](https://visualstudio.microsoft.com/) |
-| **MelonLoader** | [Latest version](https://melonwiki.xyz/#/) |
-| **Git** | [Latest version](https://git-scm.com/) (for version control) |
+## Configuration
 
-### Game Files
+Stored in `UserData/MelonPreferences.cfg` under the `Boilerplate` category.
 
-- Access to your Mimesis installation directory
-- MelonLoader installed in the game
+| Option | Description | Default | Values/Range |
+|---|---|---|---|
+| `Enabled` | Enable Boilerplate functionality. When disabled, the mod will not modify game behavior. The template only logs this value - new mods are expected to gate their patches on it. | `true` | boolean (true/false) |
 
----
+## Usage
 
-## Workspace Repository Setup
+There is no in-game usage and no keybinds - this is a developer template. Workflow for starting a new mod:
 
-This boilerplate expects a **private Workspace repository** that contains shared dependencies. This keeps your mod repository clean and allows for easier dependency management.
+1. Clone or copy this folder.
+2. Run `./setup_mod.sh` and enter a PascalCase mod name. The script renames the `.csproj`, replaces all `Boilerplate` strings, renames the Config preferences file, and removes `.git`.
+3. Optionally rename the folder to match.
+4. Re-init Git (`git init && git add . && git commit -m "Initial commit"`).
+5. Edit the new `.csproj`: set `ModsDirectory` and `GameExePath` to your install, and confirm `WorkspaceLibPath` points at your `Workspace/lib` (default `$(MSBuildThisFileDirectory)../Workspace/lib`).
+6. Build with `dotnet build -c Release` in the mod folder. PostBuild copies the DLL into `MIMESIS/Mods`.
 
-### 1. Create the Workspace Repository
+To use the patch example, uncomment `Patches/ExamplePatch.cs` and add its `<Compile Include>` line in the `.csproj`.
 
-Create a new **private** GitHub repository (e.g., `Mimesis-Workspace` or `Mimesis-ModWorkspace`).
+To use MimicAPI, uncomment the `MelonOptionalDependencies` attribute in `Core.cs` and the `ProjectReference` in the `.csproj`, then build the Workspace `MimicAPI` project.
 
-### 2. Workspace Repository Structure
+## Compatibility
 
-Your Workspace repository should have the following structure:
+Built for Mimesis 0.3.0 / MelonLoader 0.7.3.
 
-```
-Workspace/
-├── lib/
-│   ├── melonloader/
-│   │   ├── MelonLoader.dll
-│   │   └── 0Harmony.dll
-│   └── game/
-│       ├── Assembly-CSharp.dll
-│       ├── UnityEngine.CoreModule.dll
-│       ├── ... (all other game DLLs from MIMESIS_Data/Managed/)
-│       └── (approximately 260 DLL files)
-├── MimicAPI/
-│   ├── GameAPI/
-│   │   ├── ActorAPI.cs
-│   │   ├── CoreAPI.cs
-│   │   ├── PlayerAPI.cs
-│   │   └── ... (other API files)
-│   ├── MimicAPI.csproj
-│   └── ... (other MimicAPI files)
-├── scripts/
-│   └── setup_lib.ps1
+## Building (developers)
+
+```sh
+dotnet build -c Release
 ```
 
-### 3. Populate the Workspace Repository
+References resolve through `Workspace/lib/game` (game DLLs) and `Workspace/lib/melonloader` (`MelonLoader.dll`, `0Harmony.dll`). The PostBuild target copies the built DLL into `MIMESIS/Mods`. The GitHub Actions workflow pins the build SDK to 8.0.x; the local environment uses a newer SDK.
 
-#### Option A: Using the Setup Script (Recommended)
+## Credits / License
 
-1. Clone your Workspace repository locally
-2. Create a PowerShell script `scripts/setup_lib.ps1` with the following content (adjust paths to your Mimesis installation):
+Author: DooDesch. Licensed under the MIT License (see `LICENSE.md`).
 
-```powershell
-$WorkspaceLib = Join-Path $PSScriptRoot "..\lib"
-$MelonLoaderPath = "C:\Path\To\MIMESIS\MelonLoader\net35"
-$GameManagedPath = "C:\Path\To\MIMESIS\MIMESIS_Data\Managed"
-
-New-Item -ItemType Directory -Path (Join-Path $WorkspaceLib "melonloader") -Force | Out-Null
-New-Item -ItemType Directory -Path (Join-Path $WorkspaceLib "game") -Force | Out-Null
-
-Copy-Item "$MelonLoaderPath\MelonLoader.dll" -Destination (Join-Path $WorkspaceLib "melonloader\") -Force
-Copy-Item "$MelonLoaderPath\0Harmony.dll" -Destination (Join-Path $WorkspaceLib "melonloader\") -Force
-Copy-Item "$GameManagedPath\*.dll" -Destination (Join-Path $WorkspaceLib "game\") -Force
-```
-
-3. Run the script: `.\scripts\setup_lib.ps1`
-
-#### Option B: Manual Setup
-
-1. Copy `MelonLoader.dll` and `0Harmony.dll` from `MIMESIS/MelonLoader/net35/` to `Workspace/lib/melonloader/`
-2. Copy all DLLs from `MIMESIS/MIMESIS_Data/Managed/` to `Workspace/lib/game/`
-3. Add the `MimicAPI` folder (clone from the [MimicAPI repository](https://github.com/NeoMimicry/MimicAPI) or copy it manually)
-
-### 4. Commit and Push
-
-```bash
-git add lib/ MimicAPI/
-git commit -m "Add game DLLs and MimicAPI"
-git push origin main
-```
-
-> **Important:** The `lib/` directory should be committed to the repository so that GitHub Actions can access it during builds.
-
----
-
-## Setting Up Your Mod
-
-### Step 1: Clone or Copy the Boilerplate
-
-```bash
-git clone https://github.com/YourUsername/Boilerplate.git YourModName
-cd YourModName
-```
-
-### Step 2: Run the Setup Script
-
-```bash
-./setup_mod.sh
-```
-
-- Enter your desired **mod name** (PascalCase, no spaces)
-- The script will:
-  - Rename the project file to `YourModName.csproj`
-  - Replace all occurrences of `Boilerplate` with `YourModName`
-  - Rename the config file to `Config/YourModNamePreferences.cs`
-  - Remove the original Git repository metadata (`.git`), so you don't accidentally push back to the boilerplate repo
-
-### Step 3: Optionally Rename the Folder
-
-You can now rename the folder itself from `Boilerplate` to your mod name if you want it to match.
-
-### Step 4: Re-initialize Git (Optional but Recommended)
-
-```bash
-git init
-git add .
-git commit -m "Initial commit for YourModName"
-```
-
-### Step 5: Update Project Paths
-
-Edit `YourModName.csproj` and update these paths to match your setup:
-
-```xml
-<ModsDirectory>C:\Path\To\MIMESIS\Mods</ModsDirectory>
-<GameExePath>C:\Path\To\MIMESIS\MIMESIS.exe</GameExePath>
-```
-
-### Step 6: Configure Workspace Access
-
-The project file references the Workspace repository. Make sure the path is correct:
-
-```xml
-<WorkspaceLibPath>$(MSBuildThisFileDirectory)../Workspace/lib</WorkspaceLibPath>
-```
-
-If your Workspace is in a different location, adjust the path accordingly.
-
-### Step 7: Set Up GitHub Actions (Optional)
-
-If you want to use GitHub Actions for automated builds and releases:
-
-#### Required Secrets
-
-| Secret | Description |
-|--------|-------------|
-| `WORKSPACE_TOKEN` | SSH private key or Personal Access Token with access to your private Workspace repository |
-
-**For SSH Key:**
-1. Generate with: `ssh-keygen -t ed25519 -C "github-actions" -f workspace_deploy_key`
-2. Add the public key as a Deploy Key in your Workspace repository
-3. Use the private key content as the secret value
-
-**Or use a Personal Access Token (PAT):**
-- Create a PAT with `repo` scope
-- Use the token as the secret value
-
-#### Thunderstore Upload (Optional)
-
-If you want to automatically upload releases to Thunderstore:
-
-| Secret | Description |
-|--------|-------------|
-| `THUNDERSTORE_TOKEN` | Your Thunderstore API token |
-
-**Getting Your Thunderstore Token:**
-1. Go to https://thunderstore.io/settings/teams/
-2. Select the team you publish under (create one if needed)
-3. Open **Service Accounts** → **Add service account**
-4. Name it, click **Create**, and copy the token that starts with `tss_` (you only see it once)
-5. The [upload-thunderstore-package wiki](https://github.com/GreenTF/upload-thunderstore-package/wiki) has the full illustrated guide if you need more detail
-
-> **Note:** The Thunderstore package details (namespace, community, repo, etc.) are configured in the workflow file (`.github/workflows/build-and-release.yml`). Update them to match your Thunderstore package. For a complete list of available options, see the [upload-thunderstore-package documentation](https://github.com/GreenTF/upload-thunderstore-package).
-
-**To add secrets:**
-1. Go to your repository → Settings → Secrets and variables → Actions
-2. Click "New repository secret"
-3. Add each secret with the name and value above
-
----
-
-## Using MimicAPI
-
-If you want to use MimicAPI for easier game API access:
-
-### Step 1: Uncomment ProjectReference
-
-In `YourModName.csproj`, uncomment the MimicAPI ProjectReference:
-
-```xml
-<ItemGroup>
-    <ProjectReference Include="$(MimicAPIPath)/MimicAPI.csproj">
-        <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
-        <Private>false</Private>
-    </ProjectReference>
-</ItemGroup>
-```
-
-### Step 2: Uncomment Assembly Attribute
-
-In `Core.cs`, uncomment the MimicAPI assembly attribute:
-
-```csharp
-[assembly: MelonOptionalDependencies("MimicAPI")]
-```
-
-### Step 3: Uncomment DLL Copy (Optional)
-
-Uncomment the MimicAPI.dll copy command in the PostBuild target (optional, for auto-deployment).
-
-### Step 4: Use MimicAPI in Your Code
-
-```csharp
-using MimicAPI.GameAPI;
-
-var player = PlayerAPI.GetLocalPlayer();
-var room = RoomAPI.GetCurrentRoom();
-```
-
----
-
-## Project Structure
-
-```
-YourModName/
-├── Config/
-│   └── YourModNamePreferences.cs    # Configuration system
-├── Patches/
-│   └── ExamplePatch.cs              # Harmony patches (commented out)
-├── Core.cs                           # Main entry point
-└── YourModName.csproj               # Project file
-```
-
----
-
-## Development
-
-### Key Components
-
-| Component | Description |
-|-----------|-------------|
-| **`Core.cs`** | Main mod class inheriting from `MelonMod` |
-| **`Config/YourModNamePreferences.cs`** | User preferences system |
-| **`Patches/*.cs`** | Game code modifications |
-
-### Configuration
-
-Adjustment values live in `UserData/MelonPreferences.cfg`.
-
-Key options in `YourModName` section:
-- `Enabled`: toggle the mod without removing it (default: `true`).
-
----
-
-## Build & Deploy
-
-### Local Build
-
-The project is configured to automatically:
-- Copy the built DLL to the game's Mods directory
-- Optionally copy MimicAPI.dll if using MimicAPI
-- Optionally auto-start the game after build (if not already running)
-
-Update the paths in `YourModName.csproj` to match your setup:
-
-| Property | Description |
-|----------|-------------|
-| `ModsDirectory` | Path to `MIMESIS/Mods` folder |
-| `GameExePath` | Path to `MIMESIS.exe` |
-
-### Automated Releases (GitHub Actions)
-
-If you've set up GitHub Actions with Thunderstore secrets, you can create releases automatically:
-
-1. Update the version in `YourModName.csproj` (e.g., `1.0.1`)
-2. Commit and push the changes
-3. Create a Git tag: `git tag v1.0.1`
-4. Push the tag: `git push origin v1.0.1`
-
-The GitHub Actions workflow will automatically:
-- Build the project
-- Verify the version
-- Create a GitHub Release
-- Upload the package to Thunderstore (if configured)
-
-### Thunderstore Package
-
-The `thunderstore/` folder contains:
-
-| File | Description |
-|------|-------------|
-| `manifest.json` | Package metadata (version is auto-updated during build) |
-| `icon.png` | Package icon |
-| `README.md` | Thunderstore-specific README |
-
----
-
-## Troubleshooting
-
-### Build Errors
-
-#### Error: "Could not find file 'Assembly-CSharp.dll'"
-
-**Solutions:**
-- Make sure your Workspace repository is set up correctly
-- Verify the `WorkspaceLibPath` in your `.csproj` file points to the correct location
-- Ensure the `lib/game/` directory contains all required DLLs
-
-#### Error: "The type or namespace name 'MimicAPI' could not be found"
-
-**Solutions:**
-- Make sure you've uncommented the MimicAPI ProjectReference in your `.csproj`
-- Verify the `MimicAPIPath` property points to the correct location
-- Ensure MimicAPI is present in your Workspace repository
-
-#### Error: "Could not copy DLL to Mods directory"
-
-**Solutions:**
-- Check that the `ModsDirectory` path in your `.csproj` is correct
-- Ensure the Mods directory exists
-- Make sure Mimesis is not running (it may lock the DLL files)
-
-### Runtime Issues
-
-#### Mod doesn't load in game
-
-**Solutions:**
-- Check `MelonLoader/Logs/` for error messages
-- Verify the mod DLL is in the correct `Mods/` directory
-- Ensure all dependencies (especially MimicAPI.dll if used) are present
-
-#### Configuration not working
-
-**Solutions:**
-- Check `UserData/MelonPreferences.cfg` for your mod's section
-- Verify the category name matches in your `Preferences.cs` file
-
----
-
-## License
-
-This project is provided as-is under the **MIT License**. Contributions are welcome via pull requests.
-
----
+Repository: <https://github.com/DooDesch/Mimesis-Boilerplate>

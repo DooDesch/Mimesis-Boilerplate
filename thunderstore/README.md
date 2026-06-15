@@ -1,24 +1,51 @@
-# Boilerplate Mod
+# MIMESIS - Boilerplate
 
-A boilerplate template for Mimesis mods.
+> A starter template for building MelonLoader mods for MIMESIS. Clone it, rename it, and you have a ready-to-build mod skeleton that matches the project conventions.
+
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Game](https://img.shields.io/badge/game-MIMESIS-purple)
+![MelonLoader](https://img.shields.io/badge/MelonLoader-0.7.3%2B-green)
+![Status](https://img.shields.io/badge/status-template-lightgrey)
+
+This is a developer template, not a player-facing feature mod. Installing it does nothing in game - it only logs that it initialized. If you are a player, there is nothing to configure here. If you are a modder, use it as the starting point for a new Mimesis mod.
 
 ## Features
 
-- Basic mod structure
-- Configuration system
-- Harmony patching example
-- GitHub Actions workflow for releases
+- Minimal `MelonMod` entry point that initializes preferences and runs `HarmonyInstance.PatchAll()` - no game behavior is patched.
+- MelonPreferences config scaffold demonstrating the standard preferences pattern.
+- A fully commented-out Harmony patch stub showing the Prefix/Postfix pattern (not compiled by default).
+- A one-command setup script that renames the project to your mod name and removes the template Git history.
+- A GitHub Actions workflow that builds on a version tag and publishes to GitHub Releases and Thunderstore.
+- Optional MimicAPI integration pre-wired but disabled - uncomment to enable.
 
-## Configuration
+## Requirements
 
-- `Enabled`: Enable/disable the mod (default: `true`)
+| Component | Version |
+|---|---|
+| MIMESIS | 0.3.0 (current Steam build) |
+| MelonLoader | 0.7.3+ |
 
 ## Installation
 
-1. Install via Thunderstore Mod Manager
-2. Or manually download and extract to `Mimesis/MelonLoader/Mods`
+- Recommended: install via a Thunderstore mod manager (r2modman or Gale).
+- Manual: download the package, extract `Boilerplate.dll` into `MIMESIS/Mods/`, and launch once to generate the config.
 
-## Development
+## Configuration
 
-This is a template mod. Replace all occurrences of "Boilerplate" with your mod name and implement your functionality.
+Stored in `UserData/MelonPreferences.cfg` under the `Boilerplate` category.
 
+| Option | Description | Default | Values/Range |
+|---|---|---|---|
+| `Enabled` | Enable Boilerplate functionality. When disabled, the mod will not modify game behavior. The template only logs this value. | `true` | boolean (true/false) |
+
+## Usage
+
+There is no in-game usage and no keybinds. This is a developer template - it produces no visible effect in game.
+
+For the full setup guide (rename script, build steps, GitHub Actions, and optional MimicAPI), see the repository:
+
+<https://github.com/DooDesch/Mimesis-Boilerplate>
+
+## Credits / License
+
+Author: DooDesch. Licensed under the MIT License.
