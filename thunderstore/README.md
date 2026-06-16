@@ -1,5 +1,8 @@
 # MIMESIS - Boilerplate
 
+> 🛟 **Need help or found a bug?** Get support at [support.doodesch.de](https://support.doodesch.de).
+
+
 > A starter template for building MelonLoader mods for MIMESIS. Clone it, rename it, and you have a ready-to-build mod skeleton that matches the project conventions.
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
