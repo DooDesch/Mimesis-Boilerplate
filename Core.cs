@@ -13,7 +13,9 @@ namespace Boilerplate
 		public override void OnInitializeMelon()
 		{
 			BoilerplatePreferences.Initialize();
-			HarmonyInstance.PatchAll();
+			// MelonLoader auto-applies this assembly's Harmony patches via HarmonyInit(); calling PatchAll()
+			// here too would double-apply every patch (each prefix/postfix runs twice). Do NOT add it back.
+			// (See FakePlayers/Core.cs.)
 			MelonLogger.Msg("Boilerplate initialized. Enabled={0}", BoilerplatePreferences.Enabled);
 		}
 	}
