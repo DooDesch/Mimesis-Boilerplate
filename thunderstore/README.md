@@ -52,3 +52,7 @@ For the full setup guide (rename script, build steps, GitHub Actions, and option
 ## Credits / License
 
 Author: DooDesch. Licensed under the MIT License.
+
+## AI disclosure
+
+The mod icon is AI-generated. Code and configuration are hand-written.
