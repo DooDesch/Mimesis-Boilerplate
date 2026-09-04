@@ -1,7 +1,7 @@
 using Boilerplate.Config;
 using MelonLoader;
 
-[assembly: MelonInfo(typeof(Boilerplate.Core), "Boilerplate", "1.0.0", "DooDesch", null)]
+[assembly: MelonInfo(typeof(Boilerplate.Core), "Boilerplate", DooDesch.ModVersion.Current, "DooDesch", null)]
 [assembly: MelonGame("ReLUGames", "MIMESIS")]
 // Uncomment if using MimicAPI
 // [assembly: MelonOptionalDependencies("MimicAPI")]

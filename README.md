@@ -73,3 +73,7 @@ References resolve through `Workspace/lib/game` (game DLLs) and `Workspace/lib/m
 Author: DooDesch. Licensed under the MIT License (see `LICENSE.md`).
 
 Repository: <https://github.com/DooDesch/Mimesis-Boilerplate>
+
+## AI disclosure
+
+The mod icon is AI-generated. Code and configuration are hand-written.
